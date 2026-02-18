@@ -82,6 +82,32 @@ While Claude is running, you can use:
 /hey off         # Disable notifications
 ```
 
+<details>
+<summary><h2>Advanced Configuration</h2></summary>
+
+HeyAgent stores its config at `~/.heyagent/config.json`. You can edit this file directly to customize startup behavior.
+
+### Startup Options
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `startup.skipWizard` | `false` | Skip the setup wizard on launch |
+| `startup.skipNews` | `false` | Skip the news display |
+| `startup.skipTips` | `false` | Skip the tips display |
+
+Example:
+
+```json
+{
+  "startup": {
+    "skipWizard": true,
+    "skipTips": true
+  }
+}
+```
+
+</details>
+
 ## How It Works
 
 HeyAgent wraps your Claude Code or Codex CLI session:
