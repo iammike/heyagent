@@ -1,7 +1,9 @@
 import pty from '@lydell/node-pty';
 import process from 'process';
+import path from 'path';
 import Logger from '../logger.js';
 import NotificationService from '../notification.js';
+import { writeNotificationEvent } from '../notification-event.js';
 import { NOTIFY_TITLE_CODEX, NOTIFY_MSG_CODEX_STOPPED } from '../constants.js';
 
 // Minimal Codex wrapper: spawn `codex`, mirror I/O, and notify after inactivity.
@@ -31,6 +33,7 @@ export default class CodexWrapper {
       if (this.appState === 'working') {
         this.appState = 'notified';
         try {
+          writeNotificationEvent({ project: path.basename(process.cwd()), message: NOTIFY_MSG_CODEX_STOPPED });
           await this.notificationService.send(NOTIFY_TITLE_CODEX, NOTIFY_MSG_CODEX_STOPPED);
         } catch (err) {
           this.logger.error(`Notification error: ${err.message || err}`);

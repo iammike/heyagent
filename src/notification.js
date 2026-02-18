@@ -8,7 +8,7 @@ class NotificationService {
     this.logger = new Logger('notification');
   }
 
-  async send(title, message) {
+  async send(title, message, subtitle) {
     if (!title) throw new Error('Notification title is required');
     if (!message) throw new Error('Notification message is required');
 
@@ -31,7 +31,7 @@ class NotificationService {
     } else if (method === 'webhook') {
       this.sendCustomWebhookNotification(title, message);
     } else {
-      this.sendDesktopNotification(title, message);
+      this.sendDesktopNotification(title, message, subtitle);
     }
   }
 
@@ -99,11 +99,12 @@ class NotificationService {
     this.logger.info(`Webhook notification sent to ${webhookUrl}`);
   }
 
-  sendDesktopNotification(title, message) {
+  sendDesktopNotification(title, message, subtitle) {
     const isMacOS = process.platform === 'darwin';
     const options = {
       title: title,
       message: message,
+      subtitle: subtitle || undefined,
       sound: true,
       wait: false,
       timeout: 5,
