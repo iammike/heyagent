@@ -1,7 +1,9 @@
 import pty from '@lydell/node-pty';
 import process from 'process';
+import path from 'path';
 import Logger from '../logger.js';
 import NotificationService from '../notification.js';
+import { writeNotificationEvent } from '../notification-event.js';
 
 function createNotificationMessages(agentName) {
   const capitalizedName = agentName.charAt(0).toUpperCase() + agentName.slice(1);
@@ -38,6 +40,7 @@ export default class AgentWrapper {
       if (this.appState === 'working') {
         this.appState = 'notified';
         try {
+          writeNotificationEvent({ project: path.basename(process.cwd()), message: this.notifications.message });
           await this.notificationService.send(this.notifications.title, this.notifications.message);
         } catch (err) {
           this.logger.error(`Notification error: ${err.message || err}`);

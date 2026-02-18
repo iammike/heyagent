@@ -7,6 +7,7 @@ import { NOTIFY_TITLE_CLAUDE, NOTIFY_MSG_CLAUDE_DONE } from '../constants.js';
 
 import Config from '../config.js';
 import NotificationService from '../notification.js';
+import { writeNotificationEvent } from '../notification-event.js';
 
 // Cooldown state file for cross-process throttling
 const COOLDOWN_FILE = path.join(os.homedir(), '.heyagent', 'cooldown.json');
@@ -171,7 +172,8 @@ class HookHandler {
     // Log the decision
     if (shouldNotify) {
       this.logger.info(`[${project}] [${shortSession}] NOTIFY: "${body}"`);
-      await notificationService.send(title, body);
+      writeNotificationEvent({ project, sessionId: shortSession, message: body });
+      await notificationService.send(title, body, project);
     } else {
       this.logger.info(`[${project}] [${shortSession}] SUPPRESSED: "${body}" reason=${suppressReason}`);
     }
