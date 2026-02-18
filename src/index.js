@@ -5,14 +5,22 @@ import Config from './config.js';
 import ConfigSetup from './config-setup.js';
 import Logger from './logger.js';
 
-async function showLatestNews() {
+async function showLatestNews(config) {
+  if (config.startup.news === false) return;
+
   try {
     const response = await fetch('https://www.heyagent.dev/api/news', { signal: globalThis.AbortSignal.timeout(2000) });
     if (!response.ok) return;
 
     const payload = await response.json();
     const latestNews = Array.isArray(payload?.news) ? payload.news[0] : null;
-    if (latestNews) console.log(`News: ${latestNews}\n`);
+    if (!latestNews) return;
+
+    // Only show news the user hasn't seen yet
+    if (latestNews === config.lastSeenNews) return;
+
+    console.log(`News: ${latestNews}\n`);
+    config.set('lastSeenNews', latestNews);
   } catch (error) {
     void error;
   }
@@ -28,13 +36,14 @@ export async function startClaudeWrapper(claudeArgs = [], headless = false) {
   const config = new Config();
   logger.info(`Settings loaded: ${JSON.stringify(config.data)}`);
 
-  // Show latest news (quick, silent on failure)
-  await showLatestNews();
+  await showLatestNews(config);
 
-  console.log('Tips:');
-  console.log('  ※ Toggle notifications inside Claude: /hey [on | off]');
-  console.log('  ※ Get help: hey help');
-  console.log('  ※ See more: https://heyagent.dev \n');
+  if (config.startup.tips !== false) {
+    console.log('Tips:');
+    console.log('  ※ Toggle notifications inside Claude: /hey [on | off]');
+    console.log('  ※ Get help: hey help');
+    console.log('  ※ See more: https://heyagent.dev \n');
+  }
 
   const setup = new ConfigSetup(config);
   await setup.runSetupWizard();
@@ -58,13 +67,14 @@ export async function startCodexWrapper(codexArgs = []) {
   const config = new Config();
   logger.info(`Settings loaded: ${JSON.stringify(config.data)}`);
 
-  // Show latest news (quick, silent on failure)
-  await showLatestNews();
+  await showLatestNews(config);
 
-  console.log('Tips:');
-  console.log('  - Configure notifications: hey config');
-  console.log('  - Get help: hey help');
-  console.log('  - See more: https://heyagent.dev \n');
+  if (config.startup.tips !== false) {
+    console.log('Tips:');
+    console.log('  - Configure notifications: hey config');
+    console.log('  - Get help: hey help');
+    console.log('  - See more: https://heyagent.dev \n');
+  }
 
   const setup = new ConfigSetup(config);
   await setup.runSetupWizard();
@@ -84,13 +94,14 @@ export async function startAgentWrapper(agentName, agentArgs = []) {
   const config = new Config();
   logger.info(`Settings loaded: ${JSON.stringify(config.data)}`);
 
-  // Show latest news (quick, silent on failure)
-  await showLatestNews();
+  await showLatestNews(config);
 
-  console.log('Tips:');
-  console.log('  - Configure notifications: hey config');
-  console.log('  - Get help: hey help');
-  console.log('  - See more: https://heyagent.dev \n');
+  if (config.startup.tips !== false) {
+    console.log('Tips:');
+    console.log('  - Configure notifications: hey config');
+    console.log('  - Get help: hey help');
+    console.log('  - See more: https://heyagent.dev \n');
+  }
 
   const setup = new ConfigSetup(config);
   await setup.runSetupWizard();

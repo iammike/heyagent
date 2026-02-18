@@ -11,7 +11,10 @@ class ConfigSetup {
   }
 
   async runSetupWizard() {
-    // Skip the interactive prompt if config already exists and validates
+    // Skip the wizard if explicitly disabled in config, or if config already exists and validates
+    if (this.config.startup.wizard === false) {
+      return this.config.data;
+    }
     if (!this.config.isFirstRun && this.config.validateConfig()) {
       return this.config.data;
     }

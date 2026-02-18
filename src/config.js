@@ -9,6 +9,12 @@ class Config {
     this.defaults = {
       notificationMethod: 'desktop',
       notificationsEnabled: true,
+      startup: {
+        wizard: true,
+        news: true,
+        tips: true,
+      },
+      lastSeenNews: null,
       email: null,
       phoneNumber: null,
       telegramChatId: null,
@@ -27,6 +33,10 @@ class Config {
       if (fs.existsSync(this.configPath)) {
         const fileData = JSON.parse(fs.readFileSync(this.configPath, 'utf8'));
         this._data = { ...this.defaults, ...fileData };
+        // Deep merge nested startup config
+        if (fileData.startup) {
+          this._data.startup = { ...this.defaults.startup, ...fileData.startup };
+        }
       }
     } catch (error) {
       console.error(`Failed to load config: ${error.message}`);
@@ -99,6 +109,14 @@ class Config {
 
   get notificationsEnabled() {
     return this.get('notificationsEnabled');
+  }
+
+  get startup() {
+    return { ...this.defaults.startup, ...this.get('startup') };
+  }
+
+  get lastSeenNews() {
+    return this.get('lastSeenNews');
   }
 
   clearLicenseKey() {
