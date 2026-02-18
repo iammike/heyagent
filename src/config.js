@@ -10,9 +10,9 @@ class Config {
       notificationMethod: 'desktop',
       notificationsEnabled: true,
       startup: {
-        wizard: true,
-        news: true,
-        tips: true,
+        skipWizard: false,
+        skipNews: false,
+        skipTips: false,
       },
       lastSeenNews: null,
       email: null,

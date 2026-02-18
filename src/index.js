@@ -6,7 +6,7 @@ import ConfigSetup from './config-setup.js';
 import Logger from './logger.js';
 
 async function showLatestNews(config) {
-  if (config.startup.news === false) return;
+  if (config.startup.skipNews) return;
 
   try {
     const response = await fetch('https://www.heyagent.dev/api/news', { signal: globalThis.AbortSignal.timeout(2000) });
@@ -38,7 +38,7 @@ export async function startClaudeWrapper(claudeArgs = [], headless = false) {
 
   await showLatestNews(config);
 
-  if (config.startup.tips !== false) {
+  if (!config.startup.skipTips) {
     console.log('Tips:');
     console.log('  ※ Toggle notifications inside Claude: /hey [on | off]');
     console.log('  ※ Get help: hey help');
@@ -69,7 +69,7 @@ export async function startCodexWrapper(codexArgs = []) {
 
   await showLatestNews(config);
 
-  if (config.startup.tips !== false) {
+  if (!config.startup.skipTips) {
     console.log('Tips:');
     console.log('  - Configure notifications: hey config');
     console.log('  - Get help: hey help');
@@ -96,7 +96,7 @@ export async function startAgentWrapper(agentName, agentArgs = []) {
 
   await showLatestNews(config);
 
-  if (config.startup.tips !== false) {
+  if (!config.startup.skipTips) {
     console.log('Tips:');
     console.log('  - Configure notifications: hey config');
     console.log('  - Get help: hey help');

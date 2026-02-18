@@ -12,7 +12,7 @@ class ConfigSetup {
 
   async runSetupWizard() {
     // Skip the wizard if explicitly disabled in config, or if config already exists and validates
-    if (this.config.startup.wizard === false) {
+    if (this.config.startup.skipWizard) {
       return this.config.data;
     }
     if (!this.config.isFirstRun && this.config.validateConfig()) {
