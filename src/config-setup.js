@@ -11,6 +11,11 @@ class ConfigSetup {
   }
 
   async runSetupWizard() {
+    // Skip the interactive prompt if config already exists and validates
+    if (!this.config.isFirstRun && this.config.validateConfig()) {
+      return this.config.data;
+    }
+
     const currentMethod = this.config.notificationMethod;
     await this.setupWizard();
     await this.licenseWizard(currentMethod, this.config.notificationMethod);
