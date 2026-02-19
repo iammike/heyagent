@@ -12,14 +12,17 @@ const EVENT_FILE = path.join(os.homedir(), '.heyagent', 'last-notification.json'
  * Returns a path like "/dev/ttys003" or null.
  */
 function getTty() {
+  // Walk up the process tree collecting TTYs. Claude Code creates its
+  // own PTY, so the first TTY we hit is Claude's, not the iTerm tab's.
+  // We want the outermost (last) TTY, which belongs to the tab's shell.
   let pid = process.pid;
-  for (let i = 0; i < 5; i++) {
+  let lastTty = null;
+  for (let i = 0; i < 10; i++) {
     try {
       const result = execSync(`ps -o tty= -p ${pid}`, { encoding: 'utf8' }).trim();
       if (result && result !== '??' && result !== '') {
-        return `/dev/${result}`;
+        lastTty = `/dev/${result}`;
       }
-      // Walk up to parent
       const ppid = execSync(`ps -o ppid= -p ${pid}`, { encoding: 'utf8' }).trim();
       if (!ppid || ppid === '0' || ppid === '1' || ppid === pid.toString()) break;
       pid = parseInt(ppid, 10);
@@ -28,7 +31,7 @@ function getTty() {
       break;
     }
   }
-  return null;
+  return lastTty;
 }
 
 /**
