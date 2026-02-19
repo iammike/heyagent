@@ -1,8 +1,35 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { execSync } from 'child_process';
 
 const EVENT_FILE = path.join(os.homedir(), '.heyagent', 'last-notification.json');
+
+/**
+ * Get the TTY of the current process by walking up the process tree.
+ * Hook subprocesses have piped stdio, so we check ancestors until we
+ * find one with a real TTY (the shell session in the iTerm tab).
+ * Returns a path like "/dev/ttys003" or null.
+ */
+function getTty() {
+  let pid = process.pid;
+  for (let i = 0; i < 5; i++) {
+    try {
+      const result = execSync(`ps -o tty= -p ${pid}`, { encoding: 'utf8' }).trim();
+      if (result && result !== '??' && result !== '') {
+        return `/dev/${result}`;
+      }
+      // Walk up to parent
+      const ppid = execSync(`ps -o ppid= -p ${pid}`, { encoding: 'utf8' }).trim();
+      if (!ppid || ppid === '0' || ppid === '1' || ppid === pid.toString()) break;
+      pid = parseInt(ppid, 10);
+      if (isNaN(pid)) break;
+    } catch {
+      break;
+    }
+  }
+  return null;
+}
 
 /**
  * Write a notification event file before sending a notification.
@@ -21,6 +48,7 @@ export function writeNotificationEvent({ project, sessionId, message }) {
       JSON.stringify({
         project,
         sessionId: sessionId || null,
+        tty: getTty(),
         message,
         timestamp: Date.now(),
       }),
